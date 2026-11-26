@@ -88,10 +88,10 @@ Karena `portalvendor`, `portalnoc`, dan `portalpelanggan` adalah tiga repositori
 
 ## 5. Rencana Tahap Pengerjaan & Daftar Refaktor Fitur Statik (Tahap 2)
 
-### Tahap 1 : Pembangunan `portalvendor` (Fokus Berikutnya Setelah Review `.md`)
-- [ ] Inisialisasi struktur modular FastAPI (`:9000`) + MySQL `portalvendor` + seeder `PT Tekno Indo Jaya`.
-- [ ] Implementasi generator & signer `Ed25519` + CRUD `tenant_isp`, `deployment_tenant`, `fitur_tenant`, dan `log_audit_kebijakan`.
-- [ ] Bangun UI Light Mode React + Vite (`:5175`): Login Vendor, Grid Kartu Web ISP + Catatan Maintenance (`Repo/VPS/SSH/Folder`), dan Drawer Kelola Fitur.
+### Tahap 1 : Pembangunan `portalvendor` (Branch `feat/phase1-control-plane`)
+- [x] Inisialisasi struktur modular FastAPI (`:9000`) + MySQL `portalvendor` + seeder `PT Tekno Indo Jaya`.
+- [x] Implementasi generator & signer `Ed25519` + CRUD `tenant_isp`, `deployment_tenant`, `fitur_tenant`, dan `log_audit_kebijakan`.
+- [x] Bangun UI Light Mode React + Vite (`:5175`): Login Vendor, Grid Kartu Web ISP + Catatan Maintenance (`Repo/VPS/SSH/Folder`), dan Drawer Kelola Fitur.
 
 ### Tahap 2 : Perbaikan Fitur Statik & Integrasi di `portalnoc` dan `portalpelanggan`
 Saat ini di kedua repo Data Plane, daftar menu dan router API masih bersifat **statik (*hardcoded*)** sehingga belum bisa dimatikan/dinyalakan dari `portalvendor`. Pekerjaan perbaikan yang disiapkan di sana:
