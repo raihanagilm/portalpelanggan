@@ -1,0 +1,58 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*service-account*.json
+firebase-service-account.json
+.kilo/
+.github
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
+.agents/
+.codex/
+scratch/
+
+# Node & Frontend Build
+node_modules/
+/dist/
+frontend/node_modules/
+!frontend/dist/
+!frontend/dist/**
+
+# Temporary files & Scan Checkpoints
+.tmp/
+app/.tmp/
+*.tmp
+
+# Documentation, Offline Reports & Artifacts (Sensitive IP & Infrastructure Specs)
+docs/
+reports/
+dokumentasi_internal/
+*.pdf
+*.zip
+extracted_*/
+desktop_screenshots/
+popup_screenshots/

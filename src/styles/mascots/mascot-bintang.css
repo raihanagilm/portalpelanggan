@@ -1,0 +1,145 @@
+/* Mascot: bintang (Scoped from D:\Si Router\Maskot_Bergerak) */
+.mascot-bintang .mascot-svg,
+.mascot-container-bintang .mascot-svg,
+.mascot-bintang .mascot-router-svg {
+  display: inline-flex;
+  line-height: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
+}
+
+/* ==========================================================
+       SISTEM RIGGING SMOOTH 3 DETIK (MULTI-PART NATURAL MOTION)
+       ========================================================== */
+    .mascot-bintang .rig-torso, .mascot-container-bintang .rig-torso {
+      transform-box: view-box;
+      transform-origin: 120px 132px;
+      animation: mascot-bintang_torsoAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-leg-l, .mascot-container-bintang .rig-leg-l {
+      transform-box: view-box;
+      transform-origin: 93px 130px;
+      animation: mascot-bintang_legLAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-leg-r, .mascot-container-bintang .rig-leg-r {
+      transform-box: view-box;
+      transform-origin: 147px 130px;
+      animation: mascot-bintang_legRAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-antenna-l, .mascot-container-bintang .rig-antenna-l {
+      transform-box: view-box;
+      transform-origin: 83px 53px;
+      animation: mascot-bintang_antLAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-antenna-r, .mascot-container-bintang .rig-antenna-r {
+      transform-box: view-box;
+      transform-origin: 157px 53px;
+      animation: mascot-bintang_antRAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-brows, .mascot-container-bintang .rig-brows {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-bintang_browAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-eyes, .mascot-container-bintang .rig-eyes {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-bintang_eyesAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-glasses, .mascot-container-bintang .rig-glasses {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-bintang_glassesAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-mouth, .mascot-container-bintang .rig-mouth {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-bintang_mouthAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-arm-l, .mascot-container-bintang .rig-arm-l {
+      transform-box: view-box;
+      transform-origin: 48px 94px;
+      animation: mascot-bintang_armLAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-arm-r, .mascot-container-bintang .rig-arm-r {
+      transform-box: view-box;
+      transform-origin: 192px 94px;
+      animation: mascot-bintang_armRAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-bintang .rig-prop, .mascot-container-bintang .rig-prop {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-bintang_propAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    /* LED Indikator Berdenyut */
+    .mascot-bintang .led-1, .mascot-container-bintang .led-1 { animation: mascot-bintang_ledPulse 3s ease-in-out infinite 0s; }
+    .mascot-bintang .led-2, .mascot-container-bintang .led-2 { animation: mascot-bintang_ledPulse 3s ease-in-out infinite 0.4s; }
+    .mascot-bintang .led-3, .mascot-container-bintang .led-3 { animation: mascot-bintang_ledPulse 3s ease-in-out infinite 0.8s; }
+    @keyframes mascot-bintang_ledPulse {
+      0%, 100% { fill: #0F172A; }
+      50% { fill: #22C55E; }
+    }
+
+    /* Default fallback jika bagian opsional kosong */
+    @keyframes mascot-bintang_browAnim { 0%, 100% { transform: none; } }
+    @keyframes mascot-bintang_glassesAnim { 0%, 100% { transform: none; } }
+    @keyframes mascot-bintang_propAnim { 0%, 100% { transform: none; } }
+
+    /* Keyframes Spesifik Karakter (Siklus 3 Detik Smooth) */
+    
+      @keyframes mascot-bintang_torsoAnim {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        25% { transform: translateY(-7px) rotate(2deg); }
+        50% { transform: translateY(-2px) rotate(0deg); }
+        75% { transform: translateY(-7px) rotate(-2deg); }
+      }
+      @keyframes mascot-bintang_legLAnim {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(10deg) translateY(-2px); }
+        75% { transform: rotate(-8deg); }
+      }
+      @keyframes mascot-bintang_legRAnim {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(8deg); }
+        75% { transform: rotate(-10deg) translateY(-2px); }
+      }
+      @keyframes mascot-bintang_antLAnim {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(-10deg); }
+        75% { transform: rotate(8deg); }
+      }
+      @keyframes mascot-bintang_antRAnim {
+        0%, 100% { transform: rotate(0deg); }
+        25% { transform: rotate(10deg); }
+        75% { transform: rotate(-8deg); }
+      }
+      @keyframes mascot-bintang_eyesAnim {
+        0%, 100% { transform: translateY(0px) scaleY(1); }
+        25%, 75% { transform: translateY(-2px) scaleY(1.1); }
+      }
+      @keyframes mascot-bintang_mouthAnim {
+        0%, 100% { transform: scale(1, 1); }
+        25% { transform: scale(1.15, 1.28); }
+        50% { transform: scale(0.92, 0.85); }
+        75% { transform: scale(1.18, 1.3); }
+      }
+      @keyframes mascot-bintang_armLAnim {
+        0%, 100% { transform: rotate(0deg); }
+        25%, 75% { transform: rotate(16deg); }
+        50% { transform: rotate(-4deg); }
+      }
+      @keyframes mascot-bintang_armRAnim {
+        0%, 100% { transform: rotate(0deg); }
+        25%, 75% { transform: rotate(-16deg); }
+        50% { transform: rotate(4deg); }
+      }
+      @keyframes mascot-bintang_propAnim {
+        0%, 100% { transform: scale(0.85) rotate(0deg); }
+        50% { transform: scale(1.25) rotate(20deg); }
+      }
+    
+  

@@ -1,0 +1,220 @@
+/**
+ * Unified API Client for Portal Pelanggan TeknoCust
+ * Implements OOP Principles & Full Backend API Connectivity
+ */
+
+class PortalApiService {
+  constructor(baseUrl = '/portal/api') {
+    this.baseUrl = baseUrl;
+  }
+
+  async request(endpoint, options = {}, retries = 1) {
+    const url = `${this.baseUrl}${endpoint}`;
+    const defaultHeaders = {
+      'Accept': 'application/json',
+    };
+
+    if (options.body && !(options.body instanceof FormData)) {
+      defaultHeaders['Content-Type'] = 'application/json';
+    }
+
+    const config = {
+      ...options,
+      credentials: 'include',
+      headers: {
+        ...defaultHeaders,
+        ...options.headers,
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json().catch(() => ({}));
+      return {
+        ok: response.ok,
+        status: response.status,
+        data,
+      };
+    } catch (error) {
+      const isGet = !options.method || options.method.toUpperCase() === 'GET';
+      if (retries > 0 && isGet) {
+        await new Promise((r) => setTimeout(r, 800));
+        return this.request(endpoint, options, retries - 1);
+      }
+
+      console.warn(`[PortalApiService Network Warning] ${endpoint}:`, error.message);
+      return {
+        ok: false,
+        status: 500,
+        error: error.message,
+        data: null,
+      };
+    }
+  }
+
+  get(endpoint, params = {}) {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        query.append(key, value);
+      }
+    });
+    const queryString = query.toString() ? `?${query.toString()}` : '';
+    return this.request(`${endpoint}${queryString}`, { method: 'GET' });
+  }
+
+  post(endpoint, body = {}) {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+}
+
+export class PortalAuthService {
+  static async me() {
+    return new PortalApiService().get('/auth/me');
+  }
+
+  static async login(identifier, password, rememberMe = true, platform = null) {
+    const plat = platform || (typeof window !== 'undefined' && window.AndroidBridge ? 'APP' : 'WEB');
+    return new PortalApiService().post('/auth/login', {
+      identifier,
+      password,
+      remember_me: rememberMe,
+      platform: plat
+    });
+  }
+
+  static async logout(fcmToken = null, platform = null) {
+    const plat = platform || (typeof window !== 'undefined' && window.AndroidBridge ? 'APP' : 'WEB');
+    return new PortalApiService().post('/auth/logout', {
+      platform: plat,
+      fcm_token: fcmToken || null,
+    });
+  }
+
+  static async mintaResetPassword(no_hp) {
+    return new PortalApiService().post('/auth/minta-reset-password', { no_hp });
+  }
+
+  static async konfirmasiResetPassword(payload) {
+    return new PortalApiService().post('/auth/konfirmasi-reset-password', payload);
+  }
+
+  static async resetPassword(payload) {
+    return new PortalApiService().post('/auth/konfirmasi-reset-password', payload);
+  }
+
+  static async registerFcm(token, idPelanggan = null, kantor = null) {
+    return new PortalApiService().post('/auth/register-fcm', {
+      fcm_token: token,
+      id_pelanggan: idPelanggan,
+      kantor: kantor,
+    });
+  }
+}
+
+export class PortalDashboardService {
+  static async getDashboard() {
+    return new PortalApiService().get('/dashboard');
+  }
+
+  static async liveProbeSignal() {
+    return new PortalApiService().post('/dashboard/live-probe', {});
+  }
+}
+
+export class PortalKuotaService {
+  static async getKuota() {
+    return new PortalApiService().get('/kuota');
+  }
+}
+
+export class PortalKendalaService {
+  static async list() {
+    return new PortalApiService().get('/kendala');
+  }
+
+  static async create(payload) {
+    return new PortalApiService().post('/kendala/buat', payload);
+  }
+
+  static async delete(ticketId) {
+    return new PortalApiService().request(`/kendala/${encodeURIComponent(ticketId)}`, { method: 'DELETE' });
+  }
+}
+
+export class PortalWifiService {
+  static async getWifi() {
+    return new PortalApiService().get('/wifi');
+  }
+
+  static async changeWifi(payload) {
+    return new PortalApiService().post('/wifi/ganti', payload);
+  }
+
+  static async getConnectedDevices() {
+    return new PortalApiService().get('/wifi/perangkat-terhubung');
+  }
+
+  static async scanConnectedDevices() {
+    return new PortalApiService().post('/wifi/perangkat-terhubung/scan');
+  }
+
+  static async toggleBlockDevice(macAddress, block = null) {
+    return new PortalApiService().post('/wifi/perangkat-terhubung/toggle-block', {
+      mac_address: macAddress,
+      block: block
+    });
+  }
+}
+
+export class PortalProfilService {
+  static async changePassword(payload) {
+    return new PortalApiService().post('/profil/ganti-password', payload);
+  }
+
+  static async updateProfile(payload) {
+    return new PortalApiService().post('/profil/update', payload);
+  }
+
+  static async uploadFoto(imageBase64) {
+    return new PortalApiService().post('/profil/foto', { image_base64: imageBase64 });
+  }
+
+  static async deleteFoto() {
+    return new PortalApiService().request('/profil/foto', { method: 'DELETE' });
+  }
+
+  static async lockGpsLocation(latitude, longitude, accuracy = null, force = false) {
+    return new PortalApiService().post('/profil/lokasi-gps', {
+      latitude,
+      longitude,
+      accuracy,
+      force
+    });
+  }
+}
+
+export class PortalPembayaranService {
+  /** Halaman Tagihan: daftar belum lunas, kartu bayar, dan kanal bank. Dibaca live. */
+  static async getTagihan() {
+    return new PortalApiService().get('/pembayaran');
+  }
+
+  /** Riwayat tagihan yang sudah lunas, termasuk pembayaran tunai ke petugas. */
+  static async getRiwayat(limit = 24) {
+    return new PortalApiService().get('/pembayaran/riwayat', { limit });
+  }
+
+  /**
+   * Satu kali pemeriksaan sesudah pelanggan menekan "Saya sudah bayar".
+   * Jeda 10 detik, batas 2 menit, dan penghentian saat 429 diatur pemanggil.
+   */
+  static async periksaPembayaran(invoiceId) {
+    return new PortalApiService().get('/pembayaran/periksa', { invoice_id: invoiceId });
+  }
+}
+
+export const portalApi = new PortalApiService();

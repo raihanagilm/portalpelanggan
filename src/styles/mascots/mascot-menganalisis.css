@@ -1,0 +1,133 @@
+/* Mascot: menganalisis (Scoped from D:\Si Router\Maskot_Bergerak) */
+.mascot-menganalisis .mascot-svg,
+.mascot-container-menganalisis .mascot-svg,
+.mascot-menganalisis .mascot-router-svg {
+  display: inline-flex;
+  line-height: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
+}
+
+/* ==========================================================
+       SISTEM RIGGING SMOOTH 3 DETIK (MULTI-PART NATURAL MOTION)
+       ========================================================== */
+    .mascot-menganalisis .rig-torso, .mascot-container-menganalisis .rig-torso {
+      transform-box: view-box;
+      transform-origin: 120px 132px;
+      animation: mascot-menganalisis_torsoAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-leg-l, .mascot-container-menganalisis .rig-leg-l {
+      transform-box: view-box;
+      transform-origin: 93px 130px;
+      animation: mascot-menganalisis_legLAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-leg-r, .mascot-container-menganalisis .rig-leg-r {
+      transform-box: view-box;
+      transform-origin: 147px 130px;
+      animation: mascot-menganalisis_legRAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-antenna-l, .mascot-container-menganalisis .rig-antenna-l {
+      transform-box: view-box;
+      transform-origin: 83px 53px;
+      animation: mascot-menganalisis_antLAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-antenna-r, .mascot-container-menganalisis .rig-antenna-r {
+      transform-box: view-box;
+      transform-origin: 157px 53px;
+      animation: mascot-menganalisis_antRAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-brows, .mascot-container-menganalisis .rig-brows {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-menganalisis_browAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-eyes, .mascot-container-menganalisis .rig-eyes {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-menganalisis_eyesAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-glasses, .mascot-container-menganalisis .rig-glasses {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-menganalisis_glassesAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-mouth, .mascot-container-menganalisis .rig-mouth {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-menganalisis_mouthAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-arm-l, .mascot-container-menganalisis .rig-arm-l {
+      transform-box: view-box;
+      transform-origin: 50px 96px;
+      animation: mascot-menganalisis_armLAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-arm-r, .mascot-container-menganalisis .rig-arm-r {
+      transform-box: view-box;
+      transform-origin: 202px 100px;
+      animation: mascot-menganalisis_armRAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .mascot-menganalisis .rig-prop, .mascot-container-menganalisis .rig-prop {
+      transform-box: fill-box;
+      transform-origin: center center;
+      animation: mascot-menganalisis_propAnim 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    /* LED Indikator Berdenyut */
+    .mascot-menganalisis .led-1, .mascot-container-menganalisis .led-1 { animation: mascot-menganalisis_ledPulse 3s ease-in-out infinite 0s; }
+    .mascot-menganalisis .led-2, .mascot-container-menganalisis .led-2 { animation: mascot-menganalisis_ledPulse 3s ease-in-out infinite 0.4s; }
+    .mascot-menganalisis .led-3, .mascot-container-menganalisis .led-3 { animation: mascot-menganalisis_ledPulse 3s ease-in-out infinite 0.8s; }
+    @keyframes mascot-menganalisis_ledPulse {
+      0%, 100% { fill: #0F172A; }
+      50% { fill: #F59E0B; }
+    }
+
+    /* Default fallback jika bagian opsional kosong */
+    @keyframes mascot-menganalisis_browAnim { 0%, 100% { transform: none; } }
+    @keyframes mascot-menganalisis_glassesAnim { 0%, 100% { transform: none; } }
+    @keyframes mascot-menganalisis_propAnim { 0%, 100% { transform: none; } }
+
+    /* Keyframes Spesifik Karakter (Siklus 3 Detik Smooth) */
+    
+      @keyframes mascot-menganalisis_torsoAnim {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        45% { transform: translateY(-4px) rotate(-2deg); }
+      }
+      @keyframes mascot-menganalisis_legLAnim {
+        0%, 100% { transform: rotate(0deg); }
+        45% { transform: rotate(-6deg) translateY(-1px); }
+      }
+      @keyframes mascot-menganalisis_legRAnim {
+        0%, 100% { transform: rotate(0deg); }
+        45% { transform: rotate(6deg) translateY(-1px); }
+      }
+      @keyframes mascot-menganalisis_antLAnim {
+        0%, 100% { transform: rotate(0deg); }
+        45% { transform: rotate(-7deg); }
+      }
+      @keyframes mascot-menganalisis_antRAnim {
+        0%, 100% { transform: rotate(0deg); }
+        45% { transform: rotate(9deg); }
+      }
+      @keyframes mascot-menganalisis_eyesAnim {
+        0%, 44%, 52%, 100% { transform: translate(0px, 0px) scaleY(1); }
+        30% { transform: translate(-2px, 2px) scaleY(0.92); }
+        48% { transform: translate(-2px, 2px) scaleY(0.1); }
+        75% { transform: translate(-1px, 1px) scaleY(0.95); }
+      }
+      @keyframes mascot-menganalisis_mouthAnim {
+        0%, 100% { transform: scale(1, 1); }
+        45% { transform: scale(0.88, 1.2) translateX(-2px); }
+      }
+      @keyframes mascot-menganalisis_armRAnim {
+        0%, 100% { transform: rotate(0deg); }
+        45% { transform: rotate(8deg) translate(-3px, -2px); }
+      }
+      @keyframes mascot-menganalisis_armLAnim {
+        0%, 100% { transform: rotate(0deg); }
+        45% { transform: rotate(-8deg); }
+      }
+    
+  
