@@ -22,9 +22,9 @@ Karena `portalvendor`, `portalnoc`, dan `portalpelanggan` adalah tiga repositori
 
 | Repositori | Peran dalam Ekosistem | Port Backend | Port Frontend Dev | Database (`.env`) | Keterangan |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`portalvendor`** | **Control Plane (Vendor Only)** | **`9000`** *(FastAPI)* | **`5175`** *(Vite React)* | `portalvendor` *(MySQL :33070)* | Blok port terpisah jauh dari Data Plane. |
-| **`portalnoc`** | **Data Plane Admin NOC** | `7890` *(FastAPI)* | `7891` *(Vite React)* | `edteknoguard` *(MySQL :33070)* | Template/deployment NOC per ISP (driver modem & VPN terisolasi). |
-| **`portalpelanggan`** | **Data Plane Customer Portal** | `8001` *(FastAPI)* | `7891` *(Vite React)* | `edteknoguard` *(MySQL :33070)* | Template/deployment portal pelanggan mandiri per ISP. |
+| **`portalvendor`** | **Control Plane (Vendor Only)** | **`9000`** *(FastAPI)* | **`5175`** *(Vite React)* | `portalvendor` *(MySQL Laragon :3306)* | Blok port terpisah jauh dari Data Plane. |
+| **`portalnoc`** | **Data Plane Admin NOC** | `7890` *(FastAPI)* | `7891` *(Vite React)* | `edteknoguard` *(MySQL :3306 / :33070)* | Template/deployment NOC per ISP (driver modem & VPN terisolasi). |
+| **`portalpelanggan`** | **Data Plane Customer Portal** | `8001` *(FastAPI)* | `7891` *(Vite React)* | `edteknoguard` *(MySQL :3306 / :33070)* | Template/deployment portal pelanggan mandiri per ISP. |
 
 ---
 
