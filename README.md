@@ -53,6 +53,7 @@ npm run dev
 ---
 
 ## Navigasi Dokumentasi
+- [Kontrak & Sinkronisasi 3-Repo (ECOSYSTEM_SYNC.md)](ECOSYSTEM_SYNC.md)
 - [Pedoman AI Agent (AGENTS.md)](AGENTS.md)
 - [Identitas & Ruang Lingkup Produk (PRODUCT.md)](PRODUCT.md)
 - [Keputusan Arsitektur (DECISIONS.md)](DECISIONS.md)

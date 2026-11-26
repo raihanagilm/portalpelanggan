@@ -13,13 +13,15 @@ Ecosystem roles:
 - Backend tests: `pytest tests/`
 
 ## 3. Hard Constraints & Commercial Guardrails
+- **Cross-Repo Contract Sync:** Acuan kontrak ekosistem 3-repo tercatat di [ECOSYSTEM_SYNC.md](ECOSYSTEM_SYNC.md) (Master Source: `portalvendor/ECOSYSTEM_SYNC.md`, `portalvendor` berjalan di port `:9000` / `:5175`). Setiap perubahan kontrak lintas-repo wajib memperbarui `ECOSYSTEM_SYNC.md` dan `PROGRESS.md` di ketiga repositori pada sesi yang sama.
 - **Zero NOC Admin Coupling:** Never import NOC admin modules (`app.modules.customers`, `app.modules.users`, `app.modules.settings`, `app.modules.activity_logs`, `scheduler_service`) into `portalpelanggan`.
-- **Feature Guarding (Vendor Controlled):** Modules (`billing_va`, `quota_fup`, `wifi_management`, `connected_devices`, `speedtest`, `tickets`, `gps_lock`) must be gated on BOTH frontend navigation and backend FastAPI routes using signed policy from `portalvendor`.
+- **Feature Guarding (Vendor Controlled):** Modules (`dashboard_ont`, `billing_va`, `quota_fup`, `wifi_management`, `connected_devices`, `speedtest`, `tickets`, `gps_lock`) must be gated on BOTH frontend navigation and backend FastAPI routes using signed `Ed25519` policy from `portalvendor`.
 - **White-Label Branding:** Theme colors come from Vendor policy (`portalvendor`), while the ISP brand **Logo & Name** come from local ISP configuration.
 - **No Emoji / No Uncalibrated UI Slop:** Follow clean SVG icon standards and mobile-first ergonomics (375px+ baseline).
 - **Security Boundaries:** Customer session cookies (`edtekno_pelanggan_session`) use isolated cryptographic salt; home-WiFi actions require `check_is_home_wifi` verification; billing/VA data must be read live from Network Bill API v1 without stale local caching beyond short request dedupe.
 
 ## 4. State Files
+- `ECOSYSTEM_SYNC.md`: Master contract & cross-repo sync status (`portalvendor`, `portalnoc`, `portalpelanggan`).
 - `PROGRESS.md`: Current baseline, verified tests, and next steps.
 - `DECISIONS.md`: Architectural Decision Records (ADR).
 - `docs/architecture.md`: Fullstack layout and `portalvendor` policy integration flow.

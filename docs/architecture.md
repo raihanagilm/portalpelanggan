@@ -63,7 +63,9 @@ portalpelanggan/
 
 ---
 
-## 3. Aturan Kustomisasi & Perbedaan Modem Antar-ISP
+## 3. Aturan Kustomisasi, Perbedaan Modem & Refaktor Fitur Statik
+- **Kontrak & Sinkronisasi Resmi:** Lihat [ECOSYSTEM_SYNC.md](../ECOSYSTEM_SYNC.md) (Master Source: `portalvendor/ECOSYSTEM_SYNC.md`, `portalvendor` di port `:9000/:5175`).
 - **Adapter Modem ONT:** Saat menjual ke ISP dengan merek modem baru, cukup tambahkan driver pada `app/services/scraper/drivers/` dan daftarkan di `driver_registry.py` tanpa mengubah logika portal.
-- **Kontrol Fitur ON/OFF:** Ditetapkan eksklusif oleh **Vendor** melalui `portalvendor` (signed policy), dicek pada router API backend (mengembalikan `403` jika nonaktif) serta pada menu tab UI frontend.
-- **Logo & Branding:** **Logo** & **Nama Brand** diambil dari aset/pengaturan lokal milik Admin ISP, sedangkan warna tema dapat mengikuti policy dari `portalvendor`.
+- **Kontrol Fitur ON/OFF:** Ditetapkan eksklusif oleh **Vendor** melalui `portalvendor` (signed policy `Ed25519`), dicek pada router API backend (`app/portal/api_router.py`, mengembalikan `403` jika nonaktif) serta pada menu tab UI frontend.
+- **Target Refaktor Fitur Statik (Tahap 2):** Mengubah navigasi `grid-cols-5` statis dan nama brand `TeknoCust` pada `src/portal/components/layout/PortalNavigation.jsx` serta routing tab pada `src/portal/PortalCustomerApp.jsx` agar dinamis membaca `GET /portal/api/config/branding`.
+- **Logo & Branding:** **Logo** & **Nama Brand** diambil dari aset/pengaturan lokal milik Admin ISP, sedangkan warna tema mengikuti policy dari `portalvendor`.
