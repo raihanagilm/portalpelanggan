@@ -48,7 +48,6 @@ app/.tmp/
 *.tmp
 
 # Documentation, Offline Reports & Artifacts (Sensitive IP & Infrastructure Specs)
-docs/
 reports/
 dokumentasi_internal/
 *.pdf
