@@ -19,28 +19,12 @@ export default defineConfig({
       clientPort: 7891,
     },
     proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:7890',
-        changeOrigin: true,
-      },
-      '/admin/api': {
-        target: 'http://127.0.0.1:7890',
-        changeOrigin: true,
-      },
-      '/users/api': {
-        target: 'http://127.0.0.1:7890',
-        changeOrigin: true,
-      },
       '/portal/api': {
-        target: 'http://127.0.0.1:7890',
-        changeOrigin: true,
-      },
-      '/switch-kantor': {
-        target: 'http://127.0.0.1:7890',
+        target: 'http://127.0.0.1:8001',
         changeOrigin: true,
       },
       '/static': {
-        target: 'http://127.0.0.1:7890',
+        target: 'http://127.0.0.1:8001',
         changeOrigin: true,
       },
     },

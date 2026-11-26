@@ -1,0 +1,239 @@
+import logging
+import re
+from typing import Dict, Optional, List
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker, Session
+from app.core.config import settings
+from app.core.database import Base, engine as master_engine, SessionLocal as MasterSessionLocal
+
+logger = logging.getLogger("tenant_database")
+
+# Daftar nama tabel tenant (diambil langsung dari TenantBase metadata)
+def get_tenant_table_names() -> List[str]:
+    from app.db.models import TenantBase
+    return list(TenantBase.metadata.tables.keys())
+
+class _TenantTableNamesProxy(list):
+    def __iter__(self):
+        return iter(get_tenant_table_names())
+    def __contains__(self, item):
+        return item in get_tenant_table_names()
+    def __len__(self):
+        return len(get_tenant_table_names())
+
+TENANT_TABLE_NAMES = _TenantTableNamesProxy()
+
+import urllib.parse
+
+def sanitize_db_name(kode_kantor: str) -> str:
+    unquoted = urllib.parse.unquote_plus(kode_kantor)
+    # Hapus spasi dan ubah ke huruf kecil secara generik untuk seluruh nama kantor
+    normalized = unquoted.strip().lower().replace(' ', '')
+    cleaned = re.sub(r'[^a-zA-Z0-9_]', '_', normalized)
+    db_name = f"edtekno_{cleaned}"
+    if not re.fullmatch(r"edtekno_[a-z0-9_]+", db_name):
+        raise ValueError(f"Nama database tenant tidak valid: {db_name}")
+    return db_name
+
+
+def _assert_safe_sql_identifier(identifier: str) -> str:
+    if not re.fullmatch(r"[a-zA-Z0-9_]+", identifier or ""):
+        raise ValueError(f"Identifier SQL tidak valid: {identifier}")
+    return identifier
+
+class TenantDatabaseManager:
+    _engines: Dict[str, any] = {}
+    _sessionmakers: Dict[str, any] = {}
+
+    @classmethod
+    def get_database_url_for_tenant(cls, db_name: str) -> str:
+        return f"mysql+pymysql://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{db_name}?charset=utf8mb4"
+
+    @staticmethod
+    def _ensure_pelanggan_columns(engine, db_name: str) -> None:
+        """Menambahkan kolom baru pada tabel pelanggan jika database tenant sudah terlanjur dibuat."""
+        column_specs = [
+            ("password_portal", "ALTER TABLE pelanggan ADD COLUMN password_portal VARCHAR(100) NULL;"),
+            ("billing_mode", "ALTER TABLE pelanggan ADD COLUMN billing_mode VARCHAR(20) NULL, ADD INDEX ix_pelanggan_billing_mode (billing_mode);"),
+        ]
+        with engine.connect() as conn:
+            for col_name, alter_sql in column_specs:
+                res = conn.execute(text(f"SHOW COLUMNS FROM pelanggan LIKE '{col_name}';")).fetchone()
+                if not res:
+                    conn.execute(text(alter_sql))
+                    conn.commit()
+                    logger.info(f"[TENANT_DB] Kolom '{col_name}' berhasil ditambahkan ke '{db_name}'.pelanggan")
+
+    @classmethod
+    def get_engine_for_kantor(cls, kode_kantor: Optional[str]):
+        if not kode_kantor or kode_kantor.lower() in ["master", "global", "all"]:
+            return master_engine
+
+        db_name = sanitize_db_name(kode_kantor)
+        if db_name not in cls._engines:
+            # Pastikan database fisik tenant ada di MySQL sebelum create_engine
+            try:
+                cls.create_database_if_not_exists(kode_kantor)
+            except Exception as db_err:
+                logger.warning(f"[TENANT_DB] Gagal memastikan database '{db_name}': {db_err}")
+
+            connect_args = {}
+            if settings.DB_HOST not in ["127.0.0.1", "localhost", "::1"]:
+                connect_args["ssl_verify_cert"] = False
+
+            tenant_url = cls.get_database_url_for_tenant(db_name)
+            engine = create_engine(
+                tenant_url,
+                connect_args=connect_args,
+                pool_pre_ping=True,
+                pool_recycle=1800,
+                pool_size=25,
+                max_overflow=50,
+                pool_timeout=10
+            )
+
+            # Pastikan tabel-tabel TenantBase ada di database tenant ini
+            try:
+                from app.db import models
+                models.TenantBase.metadata.create_all(bind=engine)
+                cls._ensure_pelanggan_columns(engine, db_name)
+            except Exception as tbl_err:
+                logger.warning(f"[TENANT_DB] Gagal sinkronisasi tabel/kolom TenantBase untuk '{db_name}': {tbl_err}")
+
+            cls._engines[db_name] = engine
+            cls._sessionmakers[db_name] = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+        return cls._engines[db_name]
+
+    @classmethod
+    def get_sessionmaker_for_kantor(cls, kode_kantor: Optional[str]):
+        if not kode_kantor or kode_kantor.lower() in ["master", "global", "all"]:
+            return MasterSessionLocal
+
+        db_name = sanitize_db_name(kode_kantor)
+        if db_name not in cls._sessionmakers:
+            cls.get_engine_for_kantor(kode_kantor)
+        return cls._sessionmakers[db_name]
+
+    @classmethod
+    def get_tenant_session(cls, kode_kantor: Optional[str]) -> Session:
+        sm = cls.get_sessionmaker_for_kantor(kode_kantor)
+        return sm()
+
+    @classmethod
+    def create_database_if_not_exists(cls, kode_kantor: str) -> str:
+        db_name = sanitize_db_name(kode_kantor)
+        with master_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            conn.execute(text(f"CREATE DATABASE IF NOT EXISTS `{db_name}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"))
+            logger.info(f"[TENANT_DB] Database '{db_name}' berhasil dipastikan ada di MySQL.")
+        return db_name
+
+    @classmethod
+    def init_tenant_schema(cls, kode_kantor: str):
+        db_name = cls.create_database_if_not_exists(kode_kantor)
+        tenant_engine = cls.get_engine_for_kantor(kode_kantor)
+
+        from app.db import models
+
+        # Otomatis membuat seluruh tabel yang terdaftar pada TenantBase
+        models.TenantBase.metadata.create_all(bind=tenant_engine)
+        try:
+            cls._ensure_pelanggan_columns(tenant_engine, db_name)
+        except Exception:
+            pass
+        logger.info(f"[TENANT_DB] Seluruh skema tabel TenantBase ({len(models.TenantBase.metadata.tables)} tabel) berhasil dibuat di database '{db_name}'.")
+
+    @classmethod
+    def provision_new_office(cls, kode_kantor: str, id_kantor: Optional[int] = None, nama_kantor: Optional[str] = None):
+        cls.init_tenant_schema(kode_kantor)
+        session = cls.get_tenant_session(kode_kantor)
+        try:
+            from app.db.models import Kantor, SystemSetting
+            # Sinkronkan entri kantor lokal ke tenant DB
+            # Catatan: Kantor sekarang murni berada di MasterBase (tidak diduplikasi ke tenant)
+
+            existing = session.query(SystemSetting).first()
+            if not existing:
+                default_settings = [
+                    SystemSetting(id_kantor=id_kantor, kantor_kode=kode_kantor, key_name="polling_interval_minutes", value_text=str(settings.POLLING_INTERVAL_MINUTES)),
+                    SystemSetting(id_kantor=id_kantor, kantor_kode=kode_kantor, key_name="warning_threshold_dbm", value_text=str(settings.WARNING_THRESHOLD_DBM)),
+                    SystemSetting(id_kantor=id_kantor, kantor_kode=kode_kantor, key_name="critical_threshold_dbm", value_text=str(settings.CRITICAL_THRESHOLD_DBM)),
+                    SystemSetting(id_kantor=id_kantor, kantor_kode=kode_kantor, key_name="scheduler_status", value_text="RUNNING"),
+                ]
+                session.add_all(default_settings)
+                session.commit()
+                logger.info(f"[TENANT_DB] Pengaturan awal berhasil diinisialisasi untuk '{kode_kantor}'.")
+        except Exception as e:
+            session.rollback()
+            logger.error(f"[TENANT_DB] Gagal menginisialisasi default settings untuk '{kode_kantor}': {e}")
+        finally:
+            session.close()
+
+    @classmethod
+    def drop_tenant_database(cls, kode_kantor: str):
+        """Menghapus database MySQL tenant secara fisik saat kantor dihapus permanen."""
+        db_name = sanitize_db_name(kode_kantor)
+        if db_name in cls._engines:
+            try:
+                cls._engines[db_name].dispose()
+            except Exception:
+                pass
+            del cls._engines[db_name]
+        if db_name in cls._sessionmakers:
+            del cls._sessionmakers[db_name]
+
+        with master_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            conn.execute(text(f"DROP DATABASE IF EXISTS `{db_name}`;"))
+            logger.info(f"[TENANT_DB] Database '{db_name}' berhasil dihapus secara fisik dari MySQL.")
+
+    @classmethod
+    def rename_tenant_database(cls, old_kode: str, new_kode: str):
+        """
+        Mengubah nama database MySQL tenant saat nama kantor diubah oleh Super Admin.
+        (Membuat DB baru, me-rename seluruh tabel ke DB baru, lalu drop DB lama).
+        """
+        old_db = sanitize_db_name(old_kode)
+        new_db = sanitize_db_name(new_kode)
+        if old_db == new_db:
+            return
+
+        cls.create_database_if_not_exists(new_kode)
+
+        with master_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+            # Periksa apakah database lama ada (Prepared Statement / Parameterized Query)
+            check_old = conn.execute(text("SHOW DATABASES LIKE :old_db;"), {"old_db": old_db}).fetchall()
+            if check_old:
+                conn.execute(text("SET FOREIGN_KEY_CHECKS = 0;"))
+                try:
+                    tables_res = conn.execute(text(f"SHOW TABLES FROM `{old_db}`;")).fetchall()
+                    for row in tables_res:
+                        tbl = _assert_safe_sql_identifier(row[0])
+                        conn.execute(text(f"RENAME TABLE `{old_db}`.`{tbl}` TO `{new_db}`.`{tbl}`;"))
+                    conn.execute(text(f"DROP DATABASE IF EXISTS `{old_db}`;"))
+                    logger.info(f"[TENANT_DB] Database fisik berhasil di-rename dari '{old_db}' ke '{new_db}'.")
+                finally:
+                    conn.execute(text("SET FOREIGN_KEY_CHECKS = 1;"))
+
+        # Update nama kantor & field pelanggan.kantor di dalam tenant DB baru dengan Bound Parameters
+        try:
+            new_engine = cls.get_engine_for_kantor(new_kode)
+            with new_engine.connect().execution_options(isolation_level="AUTOCOMMIT") as t_conn:
+                t_conn.execute(
+                    text("UPDATE `kantors` SET `nama` = :nama WHERE 1=1;"),
+                    {"nama": new_kode.title()}
+                )
+                t_conn.execute(
+                    text("UPDATE `pelanggan` SET `kantor` = :kantor WHERE 1=1;"),
+                    {"kantor": new_kode}
+                )
+        except Exception as e:
+            logger.warning(f"[TENANT_DB] Gagal sinkronisasi data internal kantor di {new_db}: {e}")
+
+        if old_db in cls._engines:
+            try:
+                cls._engines[old_db].dispose()
+            except Exception:
+                pass
+            del cls._engines[old_db]
+        if old_db in cls._sessionmakers:
+            del cls._sessionmakers[old_db]
